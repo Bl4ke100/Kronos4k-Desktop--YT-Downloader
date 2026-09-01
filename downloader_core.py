@@ -1,4 +1,4 @@
-import os
+﻿import os
 import sys
 import re
 import uuid
@@ -13,6 +13,17 @@ import engine_updater
 engine_updater.ensure_engine_path()
 
 import yt_dlp
+import sys
+class NullWriter:
+    def write(self, s): pass
+    def flush(self): pass
+    def isatty(self): return False
+    @property
+    def encoding(self): return "utf-8"
+if sys.stdout is None: sys.stdout = NullWriter()
+if sys.stderr is None: sys.stderr = NullWriter()
+if sys.stdin is None: sys.stdin = NullWriter()
+
 
 def get_base_dir() -> str:
     if getattr(sys, 'frozen', False):
@@ -44,7 +55,10 @@ COOKIES_FILE = get_cookies_file_path()
 active_tasks: Dict[str, Dict[str, Any]] = {}
 
 def get_ffmpeg_executable() -> str:
-    app_ffmpeg = os.path.join(get_base_dir(), "ffmpeg.exe")
+    if getattr(sys, 'frozen', False):
+        app_ffmpeg = os.path.join(sys._MEIPASS, "ffmpeg.exe")
+    else:
+        app_ffmpeg = os.path.join(get_base_dir(), "ffmpeg.exe")
     if os.path.exists(app_ffmpeg):
         return app_ffmpeg
     return "ffmpeg"
@@ -377,6 +391,7 @@ def extract_video_info(url: str, browser_cookie: Optional[str] = None) -> Dict[s
 
     return {
         "id": info.get("id"),
+        "url": url,
         "title": info.get("title", "Untitled Video"),
         "channel": info.get("uploader") or info.get("channel", "Unknown Channel"),
         "channel_url": info.get("uploader_url") or info.get("channel_url", ""),
@@ -558,7 +573,7 @@ def start_download_thread(task_id: str, url: str, option_id: str, option_type: s
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 res = ydl.extract_info(url, download=True)
         except Exception as dl_err:
-            dl_err_str = strip_ansi(str(dl_err))
+            import traceback; dl_err_str = strip_ansi(str(dl_err)) + '\n' + traceback.format_exc()
             if "Could not copy" in dl_err_str or "cookie database" in dl_err_str:
                 # Retry download without locked browser cookie
                 fallback_dl_opts = dict(ydl_opts)
@@ -603,7 +618,7 @@ def start_download_thread(task_id: str, url: str, option_id: str, option_type: s
             })
 
     except Exception as e:
-        err_clean = strip_ansi(str(e))
+        import traceback; err_clean = strip_ansi(str(e)) + '\n' + traceback.format_exc()
         if "DOWNLOAD_STOPPED_BY_USER" in err_clean:
             active_tasks[task_id].update({
                 "status": "stopped",
@@ -707,3 +722,5 @@ def import_cookies_from_browser(browser_name: str) -> Dict[str, Any]:
             "success": False,
             "error": f"Failed to extract cookies from {browser_name.title()}: {err_msg}"
         }
+
+

@@ -1,4 +1,4 @@
-// ==========================================================================
+﻿// ==========================================================================
 // KRONOS 4K - Desktop Application Controller
 // ==========================================================================
 
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusRes = await callApi('check_cookies');
             if (statusRes && statusRes.has_cookies) {
                 clearInterval(checkInterval);
-                btn.innerHTML = `<span>✓ Linked!</span>`;
+                btn.innerHTML = `<span>âœ“ Linked!</span>`;
                 btn.style.background = '#10b981';
                 btn.style.color = '#ffffff';
                 
@@ -299,10 +299,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await callApi('import_browser_cookies', browserName);
                 if (res && res.success) {
                     if (browserImportStatus) {
-                        browserImportStatus.textContent = `✓ ${res.message || 'Cookies imported successfully!'}`;
+                        browserImportStatus.textContent = `âœ“ ${res.message || 'Cookies imported successfully!'}`;
                         browserImportStatus.style.color = '#10b981';
                     }
-                    if (importBtnText) importBtnText.textContent = '✓ Imported!';
+                    if (importBtnText) importBtnText.textContent = 'âœ“ Imported!';
                     await checkCookiesStatus();
                     setTimeout(() => {
                         cookieSettingsModal.classList.add('hidden');
@@ -311,14 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     const err = (res && res.error) || 'Failed to import cookies.';
                     if (browserImportStatus) {
-                        browserImportStatus.textContent = `⚠ ${err}`;
+                        browserImportStatus.textContent = `âš  ${err}`;
                         browserImportStatus.style.color = '#f87171';
                     }
                     if (importBtnText) importBtnText.textContent = 'Import Cookies';
                 }
             } catch (err) {
                 if (browserImportStatus) {
-                    browserImportStatus.textContent = `⚠ ${err.message || 'Import error'}`;
+                    browserImportStatus.textContent = `âš  ${err.message || 'Import error'}`;
                     browserImportStatus.style.color = '#f87171';
                 }
                 if (importBtnText) importBtnText.textContent = 'Import Cookies';
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="option-subtext">
                             <span>${opt.ext.toUpperCase()}</span>
-                            <span>•</span>
+                            <span>â€¢</span>
                             <span>${opt.size_formatted}</span>
                         </div>
                     </div>
@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="option-subtext">
                             <span>${opt.ext.toUpperCase()}</span>
-                            <span>•</span>
+                            <span>â€¢</span>
                             <span>${opt.size_formatted}</span>
                         </div>
                     </div>
@@ -667,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await callApi(
                 'start_download_task',
-                currentVideoData.url,
+                currentVideoData.url || urlInput.value.trim(),
                 option.id,
                 type,
                 currentSaveDirectory
@@ -804,3 +804,4 @@ document.addEventListener('DOMContentLoaded', () => {
         errorBanner.classList.add('hidden');
     }
 });
+
