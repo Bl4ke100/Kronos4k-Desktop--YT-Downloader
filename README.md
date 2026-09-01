@@ -6,13 +6,20 @@
 
 **A high-performance standalone Windows desktop application for downloading YouTube videos in crystal-clear 4K UHD 60FPS and studio-grade 320kbps audio.**
 
+[![Latest Release](https://img.shields.io/github/v/release/Bl4ke100/Kronos4k-Desktop--YT-Downloader?style=for-the-badge&logo=github&color=orange)](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D6.svg?style=for-the-badge&logo=windows&logoColor=white)](https://microsoft.com)
 [![Python](https://img.shields.io/badge/Python-3.11-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![pywebview](https://img.shields.io/badge/pywebview-5.x-teal.svg?style=for-the-badge)](https://pywebview.app)
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-8.1%20Embedded-green.svg?style=for-the-badge&logo=ffmpeg&logoColor=white)](https://ffmpeg.org)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey.svg?style=for-the-badge)](LICENSE)
 
-[Features](#-features) • [Download EXE](#-download-standalone-exe) • [Running from Source](#-running-from-source) • [Building the EXE](#-building-the-standalone-exe) • [Author](#-author)
+<br />
+
+### 🚀 **[👉 Download Latest Kronos4K.exe (v1.0.0)](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest) 👈**
+*(Portable single .exe • No installation, Python, or FFmpeg required)*
+
+<br />
+
+[Features](#-features) • [Download](#-download-standalone-exe) • [Running from Source](#-running-from-source) • [Building the EXE](#-building-the-standalone-exe) • [Author](#-author)
 
 </div>
 
@@ -35,9 +42,9 @@
 
 Get the pre-built, ready-to-use executable from GitHub Releases:
 
-👉 **[Download Latest Kronos4K.exe](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases)**
+👉 **[Download Latest Kronos4K.exe](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest)**
 
-*(Just double-click to launch — no installation required!)*
+*(Just double-click `Kronos4K.exe` to launch — no setup required!)*
 
 ---
 
