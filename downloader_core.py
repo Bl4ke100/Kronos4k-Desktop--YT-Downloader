@@ -67,7 +67,7 @@ def get_media_codecs(filepath: str) -> Dict[str, Optional[str]]:
     ffmpeg_exe = get_ffmpeg_executable()
     try:
         cmd = [ffmpeg_exe, "-i", filepath]
-        res = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+        res = subprocess.run(cmd, capture_output=True, text=True, errors="replace", creationflags=0x08000000)
         output = res.stderr
         
         vcodec = None
@@ -138,7 +138,7 @@ def ensure_nle_compatible(filepath: str, task_id: Optional[str] = None) -> str:
             temp_output
         ]
         try:
-            res = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+            res = subprocess.run(cmd, capture_output=True, text=True, errors="replace", creationflags=0x08000000)
             if res.returncode == 0 and os.path.exists(temp_output) and os.path.getsize(temp_output) > 1000:
                 os.replace(temp_output, filepath)
                 return filepath
@@ -154,10 +154,10 @@ def ensure_nle_compatible(filepath: str, task_id: Optional[str] = None) -> str:
     # Case 2: Video is VP9 / AV1 (e.g. 1440p / 4K from YouTube)
     # Try Hardware Encoders for ultra-fast speed, falling back to multi-threaded libx264
     encoders_to_try = [
-        ["-c:v", "h264_nvenc", "-preset", "p5", "-cq", "18"],
-        ["-c:v", "h264_qsv", "-global_quality", "18"],
+        ["-c:v", "h264_nvenc", "-preset", "p5", "-cq", "23"],
+        ["-c:v", "h264_qsv", "-global_quality", "23"],
         ["-c:v", "h264_amf", "-rc", "cbr", "-quality", "speed"],
-        ["-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-threads", "0"]
+        ["-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-threads", "0"]
     ]
     
     for enc_args in encoders_to_try:
@@ -170,7 +170,7 @@ def ensure_nle_compatible(filepath: str, task_id: Optional[str] = None) -> str:
             temp_output
         ]
         try:
-            res = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+            res = subprocess.run(cmd, capture_output=True, text=True, errors="replace", creationflags=0x08000000)
             if res.returncode == 0 and os.path.exists(temp_output) and os.path.getsize(temp_output) > 1000:
                 # Transcode succeeded! Replace original file with the 100% NLE-ready MP4
                 os.replace(temp_output, filepath)
@@ -554,6 +554,8 @@ def start_download_thread(task_id: str, url: str, option_id: str, option_type: s
             
             if target_height:
                 format_spec = (
+                    f"bestvideo[height<={target_height}][vcodec^=avc]+bestaudio[ext=m4a]/"
+                    f"bestvideo[height<={target_height}][ext=mp4]+bestaudio[ext=m4a]/"
                     f"bestvideo[height<={target_height}]+bestaudio/"
                     f"best[height<={target_height}]/best"
                 )
@@ -722,5 +724,7 @@ def import_cookies_from_browser(browser_name: str) -> Dict[str, Any]:
             "success": False,
             "error": f"Failed to extract cookies from {browser_name.title()}: {err_msg}"
         }
+
+
 
 
