@@ -11,10 +11,11 @@ __pycache__/
 env/
 venv/
 
-# PyInstaller Build Artifacts
+# PyInstaller Build Artifacts (Large binaries not allowed in GitHub repos)
 build/
 dist/
 *.spec
+*.exe
 
 # Downloaded Media (never commit user downloads)
 downloads/
@@ -30,7 +31,7 @@ downloads/
 *.part
 *.ytdl
 
-# Cookies & Auth (sensitive!)
+# Cookies & Auth (sensitive tokens!)
 cookies.txt
 dist/cookies.txt
 *.cookies
@@ -39,7 +40,7 @@ yt_auth_cookies.json
 # yt-dlp Engine Updates (stored in AppData at runtime)
 engine_updates/
 
-# Binary Assets (large, rebuilt by build_exe.py)
+# Binary Assets
 ffmpeg.exe
 app.ico
 
