@@ -803,5 +803,116 @@ document.addEventListener('DOMContentLoaded', () => {
     function hideError() {
         errorBanner.classList.add('hidden');
     }
+
+
+    // ==========================================
+    // APP UPDATE LOGIC
+    // ==========================================
+    const appUpdateBtn = document.getElementById('app-update-btn');
+    const appUpdateBadge = document.getElementById('app-update-badge');
+    const appUpdateModal = document.getElementById('app-update-modal');
+    const closeAppUpdateModal = document.getElementById('close-app-update-modal');
+    const appUpdateStatus = document.getElementById('app-update-badge-status');
+    const appUpdateVersionLabel = document.getElementById('app-update-version-label');
+    const appUpdateNotes = document.getElementById('app-update-notes');
+    const performAppUpdateBtn = document.getElementById('perform-app-update-btn');
+    
+    let pendingAppUpdateUrl = null;
+
+    if (appUpdateBtn) {
+        appUpdateBtn.addEventListener('click', () => {
+            appUpdateModal.classList.remove('hidden');
+            checkForAppUpdates(true);
+        });
+    }
+
+    if (closeAppUpdateModal) {
+        closeAppUpdateModal.addEventListener('click', () => {
+            appUpdateModal.classList.add('hidden');
+        });
+    }
+
+    async function checkForAppUpdates(manual = false) {
+        if (manual) {
+            appUpdateStatus.textContent = "Checking...";
+            appUpdateStatus.className = "method-badge";
+            appUpdateVersionLabel.textContent = "Connecting to GitHub Releases";
+            appUpdateNotes.textContent = "Please wait...";
+            performAppUpdateBtn.classList.add('hidden');
+        }
+        
+        try {
+            const result = await window.pywebview.api.check_app_update();
+            if (result.update_available) {
+                appUpdateBadge.classList.remove('hidden');
+                pendingAppUpdateUrl = result.download_url;
+                
+                if (manual) {
+                    appUpdateStatus.textContent = "Update Available";
+                    appUpdateStatus.className = "method-badge success";
+                    appUpdateVersionLabel.textContent = "New Version: " + result.version;
+                    appUpdateNotes.textContent = result.release_notes || "Bug fixes and performance improvements.";
+                    performAppUpdateBtn.classList.remove('hidden');
+                }
+            } else {
+                if (manual) {
+                    appUpdateStatus.textContent = "Up to Date";
+                    appUpdateStatus.className = "method-badge success";
+                    appUpdateVersionLabel.textContent = "You are running the latest version.";
+                    appUpdateNotes.textContent = result.error ? `Error: ${result.error}` : "No updates found.";
+                    performAppUpdateBtn.classList.add('hidden');
+                }
+            }
+        } catch (e) {
+            console.error("Failed to check for app updates", e);
+            if (manual) {
+                appUpdateStatus.textContent = "Error";
+                appUpdateStatus.className = "method-badge error";
+                appUpdateNotes.textContent = "Could not check for updates. Check your internet connection.";
+            }
+        }
+    }
+
+    if (performAppUpdateBtn) {
+        performAppUpdateBtn.addEventListener('click', async () => {
+            if (!pendingAppUpdateUrl) return;
+            
+            const btnText = performAppUpdateBtn.querySelector('span');
+            btnText.textContent = "Downloading Update (This may take a minute)...";
+            performAppUpdateBtn.disabled = true;
+            performAppUpdateBtn.style.opacity = "0.7";
+            
+            try {
+                const res = await window.pywebview.api.perform_app_update(pendingAppUpdateUrl);
+                if (res.success) {
+                    btnText.textContent = "Restarting Application...";
+                    setTimeout(() => {
+                        window.pywebview.api.exit_app();
+                    }, 500);
+                } else {
+                    alert("Update failed: " + (res.error || "Unknown error"));
+                    btnText.textContent = "Download & Install Update";
+                    performAppUpdateBtn.disabled = false;
+                    performAppUpdateBtn.style.opacity = "1";
+                }
+            } catch (e) {
+                alert("Update failed: " + e);
+                btnText.textContent = "Download & Install Update";
+                performAppUpdateBtn.disabled = false;
+                performAppUpdateBtn.style.opacity = "1";
+            }
+        });
+    }
+
+    // Silent check on startup (delay slightly so UI loads first)
+    setTimeout(() => {
+        if (window.pywebview && window.pywebview.api) {
+            checkForAppUpdates(false);
+        } else {
+            window.addEventListener('pywebviewready', () => checkForAppUpdates(false));
+        }
+    }, 2000);
+
+
 });
 

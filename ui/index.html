@@ -403,6 +403,52 @@
         </div>
     </div>
 
+    <!-- App Update Modal -->
+    <div id="app-update-modal" class="modal-overlay hidden">
+        <div class="modal-card cookie-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <div class="modal-icon-badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Kronos 4K Update</h3>
+                        <p id="app-update-subtitle" class="modal-subtitle">Check for new versions of the application</p>
+                    </div>
+                </div>
+                <button id="close-app-update-modal" class="close-modal-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="app-update-status" class="cookie-method-section highlight-box">
+                    <div class="method-header-row">
+                        <span id="app-update-badge-status" class="method-badge">Checking...</span>
+                        <label id="app-update-version-label" class="cookie-label">Connecting to GitHub Releases</label>
+                    </div>
+                    <p id="app-update-notes" class="cookie-desc" style="white-space: pre-wrap; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); margin-top: 10px;">Please wait...</p>
+                    
+                    <button id="perform-app-update-btn" class="btn-primary full-width hidden" style="margin-top: 15px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <span>Download & Install Update</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Engine Update Modal -->
     <div id="engine-update-modal" class="modal-overlay hidden">
         <div class="modal-card cookie-modal-card">

@@ -9,6 +9,7 @@ import subprocess
 import webview
 import downloader_core
 import engine_updater
+import app_updater
 engine_updater.ensure_engine_path()
 
 def cookies_to_netscape(cookies_list) -> str:
@@ -84,6 +85,18 @@ class DesktopApi:
 
     def set_window(self, window):
         self._window = window
+
+
+    def check_app_update(self):
+        return app_updater.check_for_updates()
+        
+    def perform_app_update(self, download_url):
+        return app_updater.perform_update(download_url)
+        
+    def exit_app(self):
+        if self._window:
+            self._window.destroy()
+        sys.exit(0)
 
     # Native Folder Selection
     def select_download_folder(self):
