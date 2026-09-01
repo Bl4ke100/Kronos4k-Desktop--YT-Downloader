@@ -6,7 +6,7 @@ import tempfile
 import subprocess
 import time
 
-CURRENT_VERSION = "v1.0.0"
+CURRENT_VERSION = "v1.0.1"
 REPO_URL = "https://api.github.com/repos/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest"
 
 def check_for_updates():
