@@ -1,0 +1,57 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Virtual Environments
+*.env
+.env
+.venv/
+env/
+venv/
+
+# PyInstaller Build Artifacts
+build/
+dist/
+*.spec
+
+# Downloaded Media (never commit user downloads)
+downloads/
+*.mp4
+*.mkv
+*.webm
+*.mp3
+*.m4a
+*.wav
+*.ogg
+*.opus
+*.flac
+*.part
+*.ytdl
+
+# Cookies & Auth (sensitive!)
+cookies.txt
+dist/cookies.txt
+*.cookies
+yt_auth_cookies.json
+
+# yt-dlp Engine Updates (stored in AppData at runtime)
+engine_updates/
+
+# Binary Assets (large, rebuilt by build_exe.py)
+ffmpeg.exe
+app.ico
+
+# Logs
+*.log
+logs/
+
+# IDE & OS
+.vscode/
+.idea/
+*.suo
+*.user
+.DS_Store
+Thumbs.db
+desktop.ini
