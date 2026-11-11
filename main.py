@@ -364,9 +364,23 @@ def _pot_worker():
     except Exception:
         pass
     
-    server_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "pot_provider", "server")
-    main_js = os.path.join(server_dir, "build", "main.js")
-    if os.path.exists(main_js):
+    candidate_dirs = []
+    if getattr(sys, 'frozen', False):
+        candidate_dirs.append(os.path.join(os.path.dirname(sys.executable), 'pot_provider', 'server'))
+        if hasattr(sys, '_MEIPASS'):
+            candidate_dirs.append(os.path.join(sys._MEIPASS, 'pot_provider', 'server'))
+    candidate_dirs.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pot_provider', 'server'))
+
+    server_dir = None
+    main_js = None
+    for d in candidate_dirs:
+        candidate_js = os.path.join(d, 'build', 'main.js')
+        if os.path.exists(candidate_js):
+            server_dir = d
+            main_js = candidate_js
+            break
+
+    if main_js and os.path.exists(main_js):
         try:
             _pot_process = subprocess.Popen(
                 ["node", main_js, "--port", "4416"],

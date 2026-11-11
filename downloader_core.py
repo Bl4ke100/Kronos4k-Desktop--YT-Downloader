@@ -55,13 +55,33 @@ COOKIES_FILE = get_cookies_file_path()
 active_tasks: Dict[str, Dict[str, Any]] = {}
 
 def get_ffmpeg_executable() -> str:
+    # 1. Check directory containing the executable (for onedir or external ffmpeg next to exe)
     if getattr(sys, 'frozen', False):
-        app_ffmpeg = os.path.join(sys._MEIPASS, "ffmpeg.exe")
+        exe_dir_ffmpeg = os.path.join(os.path.dirname(sys.executable), 'ffmpeg.exe')
+        if os.path.exists(exe_dir_ffmpeg):
+            return exe_dir_ffmpeg
+        # 2. Check PyInstaller _MEIPASS if bundled
+        if hasattr(sys, '_MEIPASS'):
+            mei_ffmpeg = os.path.join(sys._MEIPASS, 'ffmpeg.exe')
+            if os.path.exists(mei_ffmpeg):
+                return mei_ffmpeg
     else:
-        app_ffmpeg = os.path.join(get_base_dir(), "ffmpeg.exe")
-    if os.path.exists(app_ffmpeg):
-        return app_ffmpeg
-    return "ffmpeg"
+        app_ffmpeg = os.path.join(get_base_dir(), 'ffmpeg.exe')
+        if os.path.exists(app_ffmpeg):
+            return app_ffmpeg
+
+    # 3. Check AppData
+    app_data = os.getenv('APPDATA')
+    if app_data:
+        appdata_ffmpeg = os.path.join(app_data, 'Kronos4K', 'bin', 'ffmpeg.exe')
+        if os.path.exists(appdata_ffmpeg):
+            return appdata_ffmpeg
+
+    # 4. Check system PATH
+    sys_ffmpeg = shutil.which('ffmpeg')
+    if sys_ffmpeg:
+        return sys_ffmpeg
+    return 'ffmpeg'
 
 def get_media_codecs(filepath: str) -> Dict[str, Optional[str]]:
     ffmpeg_exe = get_ffmpeg_executable()
@@ -152,7 +172,27 @@ def ensure_nle_compatible(filepath: str, task_id: Optional[str] = None) -> str:
         return filepath
         
     # Case 2: Video is VP9 / AV1 (e.g. 1440p / 4K from YouTube)
-    # Try Hardware Encoders for ultra-fast speed, falling back to multi-threaded libx264
+    # For high-res 4K/2K streams, prefer instant lossless stream copy with AAC stereo remux
+    # to preserve 100% of the raw 4K quality without long CPU re-encoding freezes
+    cmd_fast = [
+        ffmpeg_exe, "-y", "-i", filepath,
+        "-c:v", "copy",
+        "-c:a", "aac", "-b:a", "320k",
+        "-movflags", "+faststart",
+        temp_output
+    ]
+    try:
+        res = subprocess.run(cmd_fast, capture_output=True, text=True, errors="replace", creationflags=0x08000000)
+        if res.returncode == 0 and os.path.exists(temp_output) and os.path.getsize(temp_output) > 1000:
+            os.replace(temp_output, filepath)
+            return filepath
+    except Exception:
+        pass
+    if os.path.exists(temp_output):
+        try: os.remove(temp_output)
+        except Exception: pass
+
+    # Fallback: Try Hardware Encoders if copy was not compatible
     encoders_to_try = [
         ["-c:v", "h264_nvenc", "-preset", "p5", "-cq", "23"],
         ["-c:v", "h264_qsv", "-global_quality", "23"],
@@ -226,11 +266,6 @@ def get_base_ydl_opts(browser_cookie: Optional[str] = None) -> Dict[str, Any]:
         'quiet': True,
         'no_warnings': True,
         'remote_components': {'ejs:github'},
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['web_creator', 'web']
-            }
-        }
     }
     
     app_ffmpeg = get_ffmpeg_executable()
@@ -329,6 +364,8 @@ def extract_video_info(url: str, browser_cookie: Optional[str] = None) -> Dict[s
             video_options.append({
                 "id": opt_id,
                 "type": "video",
+                "height": target_height,
+                "fps": best_fps,
                 "quality": f"{target_height}p",
                 "label": display_label,
                 "badge": badge,
@@ -554,8 +591,7 @@ def start_download_thread(task_id: str, url: str, option_id: str, option_type: s
             
             if target_height:
                 format_spec = (
-                    f"bestvideo[height<={target_height}][vcodec^=avc]+bestaudio[ext=m4a]/"
-                    f"bestvideo[height<={target_height}][ext=mp4]+bestaudio[ext=m4a]/"
+                    f"bestvideo[height={target_height}]+bestaudio/"
                     f"bestvideo[height<={target_height}]+bestaudio/"
                     f"best[height<={target_height}]/best"
                 )

@@ -2,13 +2,14 @@ import os
 import sys
 import subprocess
 import shutil
+import argparse
 from PIL import Image
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def build():
+def build(mode="onefile"):
     print("=" * 60)
-    print("  Building Standalone KRONOS 4K Desktop Executable (.exe)")
+    print(f"  Building Standalone KRONOS 4K Executable (Mode: {mode.upper()})")
     print("=" * 60)
     
     os.chdir(BASE_DIR)
@@ -38,29 +39,45 @@ def build():
             shutil.copy2(system_ffmpeg, ffmpeg_path)
             print(f"[+] Found and copied system FFmpeg: {system_ffmpeg}")
         else:
-            print("[-] Warning: ffmpeg.exe not found in desktop-app folder.")
+            print("[-] Warning: ffmpeg.exe not found in base folder.")
 
-    # 3. PyInstaller command arguments
+    # 3. Clean previous spec file to ensure clean build
+    spec_path = os.path.join(BASE_DIR, "Kronos4K.spec")
+    if os.path.exists(spec_path):
+        try:
+            os.remove(spec_path)
+        except Exception:
+            pass
+
+    # 4. PyInstaller command arguments
+    # Exclude the 6,000+ loose node_modules files to prevent the 20+ second decompression freeze
+    # Disable UPX (--noupx) to prevent heuristic antivirus locks on Windows
     cmd = [
         sys.executable,
         "-m",
         "PyInstaller",
         "--noconfirm",
         "--clean",
-        "--onefile",
         "--windowed",
+        "--noupx",
         "--name", "Kronos4K",
         "--add-data", f"ui{os.pathsep}ui",
-        "--add-data", f"pot_provider{os.pathsep}pot_provider",
         "--collect-all", "yt_dlp_plugins",
     ]
+    
+    if mode == "onefile":
+        cmd.append("--onefile")
+        # In onefile mode, bundle ffmpeg directly inside the single .exe so it's 100% self-contained
+        if os.path.exists(ffmpeg_path):
+            cmd.extend(["--add-binary", f"ffmpeg.exe{os.pathsep}."])
+    else:
+        cmd.append("--onedir")
+        if os.path.exists(ffmpeg_path):
+            cmd.extend(["--add-binary", f"ffmpeg.exe{os.pathsep}."])
     
     if os.path.exists(ico_path):
         cmd.extend(["--icon", "app.ico"])
         cmd.extend(["--add-data", f"app.ico{os.pathsep}."])
-        
-    if os.path.exists(ffmpeg_path):
-        cmd.extend(["--add-binary", f"ffmpeg.exe{os.pathsep}."])
         
     cmd.append("main.py")
     
@@ -70,13 +87,33 @@ def build():
     res = subprocess.run(cmd)
     
     if res.returncode == 0:
-        dist_exe = os.path.join(BASE_DIR, "dist", "Kronos4K.exe")
-        print("\n" + "=" * 60)
-        print("  BUILD SUCCESSFUL!")
-        print(f"  Executable created at: {dist_exe}")
-        print("=" * 60)
+        dist_dir = os.path.join(BASE_DIR, "dist")
+        if mode == "onefile":
+            dist_exe = os.path.join(dist_dir, "Kronos4K.exe")
+            print("\n" + "=" * 60)
+            print("  STANDALONE EXE BUILD SUCCESSFUL!")
+            print(f"  Standalone Binary: {dist_exe}")
+            print(f"  File Size        : {os.path.getsize(dist_exe) / (1024*1024):.1f} MB")
+            print("  100% Portable single .exe with embedded FFmpeg & Zero Dependencies!")
+            print("=" * 60)
+        else:
+            target_dir = os.path.join(dist_dir, "Kronos4K")
+            dist_exe = os.path.join(target_dir, "Kronos4K.exe")
+            print("\n" + "=" * 60)
+            print("  DIRECTORY BUILD SUCCESSFUL!")
+            print(f"  Directory: {target_dir}")
+            print(f"  Executable: {dist_exe}")
+            print("=" * 60)
     else:
         print("\n[-] Build failed with exit code:", res.returncode)
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description="Build KRONOS 4K Desktop App")
+    parser.add_argument(
+        "--mode",
+        choices=["onefile", "onedir"],
+        default="onefile",
+        help="Build mode: 'onefile' (standalone single exe) or 'onedir' (directory bundle)"
+    )
+    args = parser.parse_args()
+    build(mode=args.mode)

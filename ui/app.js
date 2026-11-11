@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
         videoOptionsList.innerHTML = '';
         if (data.video_options && data.video_options.length > 0) {
             data.video_options.forEach(opt => {
-                const is4K = opt.height >= 2160;
+                const is4K = (opt.height && opt.height >= 2160) || (opt.badge && opt.badge.includes('4K')) || (opt.id && opt.id.includes('2160'));
                 const card = document.createElement('div');
                 card.className = `option-card ${is4K ? 'option-4k' : ''}`;
                 card.innerHTML = `
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="option-subtext">
                             <span>${opt.ext.toUpperCase()}</span>
-                            <span>â€¢</span>
+                            <span>&bull;</span>
                             <span>${opt.size_formatted}</span>
                         </div>
                     </div>
@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <div class="option-subtext">
                             <span>${opt.ext.toUpperCase()}</span>
-                            <span>â€¢</span>
+                            <span>&bull;</span>
                             <span>${opt.size_formatted}</span>
                         </div>
                     </div>
