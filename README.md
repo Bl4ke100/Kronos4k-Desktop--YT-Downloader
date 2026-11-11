@@ -14,7 +14,7 @@
 
 <br />
 
-### 🚀 **[👉 Download Latest Kronos4K.exe (v1.0.0)](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest) 👈**
+### 🚀 **[👉 Download Latest Kronos4K.exe (v1.0.2)](https://github.com/Bl4ke100/Kronos4k-Desktop--YT-Downloader/releases/latest) 👈**
 *(Portable single .exe • No installation, Python, or FFmpeg required)*
 
 <br />
